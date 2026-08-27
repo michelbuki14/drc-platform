@@ -1,0 +1,12 @@
+{
+  "nav": {
+    "flights": "Flights",
+    "cargo": "Cargo",
+    "assistance": "Assistance",
+    "trips": "Trips",
+    "account": "Account",
+    "partner": "Partner",
+    "ops": "Ops Console",
+    "sign_in": "Sign in"
+  }
+}

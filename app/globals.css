@@ -1,0 +1,900 @@
+/* ================================================================
+   CONGOCONNECT DESIGN SYSTEM v3.0 — Apple-inspired premium upgrade
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================
+   1. PREMIUM DESIGN TOKENS
+   ================================================================ */
+
+:root {
+  /* ── CongoConnect Core Palette (preserved) ───────────────── */
+  --cc-blue-50:   #EBF0FA;
+  --cc-blue-100:  #C5D3EE;
+  --cc-blue-200:  #93ABD5;
+  --cc-blue-300:  #6183B8;
+  --cc-blue-400:  #3E629B;
+  --cc-blue-500:  #0B2545;
+  --cc-blue-600:  #081E38;
+  --cc-blue-700:  #081A33;
+  --cc-blue-800:  #07152A;
+  --cc-blue-900:  #060F1F;
+
+  --cc-gold-50:   #FBF6E8;
+  --cc-gold-100:  #F5E7C7;
+  --cc-gold-200:  #E8CE7A;
+  --cc-gold-300:  #D4AF37;
+  --cc-gold-400:  #B89620;
+  --cc-gold-500:  #8E6D14;
+
+  --cc-emerald-50:  #E8F3EC;
+  --cc-emerald-100: #C3D9C9;
+  --cc-emerald-200: #9AC09E;
+  --cc-emerald-300: #6A976F;
+  --cc-emerald-400: #3E6E45;
+  --cc-emerald-500: #1B4D2E;
+  --cc-emerald-600: #143B22;
+  --cc-emerald-700: #0F2A18;
+
+  --cc-charcoal-50:  #F7F6F4;
+  --cc-charcoal-100: #EFEDEA;
+  --cc-charcoal-200: #E2DFD9;
+  --cc-charcoal-300: #C9C5BC;
+  --cc-charcoal-400: #A3A09A;
+  --cc-charcoal-500: #7D7A74;
+  --cc-charcoal-600: #5C5A54;
+  --cc-charcoal-700: #4A4844;
+  --cc-charcoal-800: #2D2B28;
+  --cc-charcoal-900: #1A1A18;
+  --cc-charcoal-950: #0F0F0E;
+
+  --cc-cream:  #FAF8F3;
+  --cc-white:  #FFFFFF;
+  --cc-black:  #000000;
+
+  /* ── Semantic Tokens (enhanced) ──────────────────────────── */
+  --color-primary:       var(--cc-blue-500);
+  --color-primary-light: var(--cc-blue-400);
+  --color-primary-dark:  var(--cc-blue-700);
+  --color-primary-navy:  var(--cc-blue-900);
+  --color-accent:        var(--cc-gold-300);
+  --color-accent-soft:   var(--cc-gold-200);
+  --color-accent-deep:   var(--cc-gold-500);
+  --color-success:       var(--cc-emerald-500);
+  --color-success-light: var(--cc-emerald-100);
+  --color-error:         #DC2626;
+  --color-error-light:   #FEE2E2;
+  --color-warning:       #D97706;
+  --color-warning-light: #FEF3C7;
+  --color-info:          var(--cc-blue-400);
+  --color-info-light:    var(--cc-blue-50);
+  --color-bg:            var(--cc-cream);
+  --color-surface:       var(--cc-white);
+  --color-surface-elevated: #FFFFFF;
+  --color-text:          var(--cc-charcoal-900);
+  --color-text-secondary: var(--cc-charcoal-400);
+  --color-text-muted:    var(--cc-charcoal-500);
+  --color-border:        var(--cc-charcoal-200);
+  --color-border-strong: var(--cc-charcoal-300);
+  --color-border-subtle: rgba(26,26,24,0.06);
+
+  /* ── Typography ──────────────────────────────────────────── */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-sans:    'Inter', system-ui, sans-serif;
+
+  /* ── Apple-inspired spacing scale ───────────────────────── */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  --space-32: 8rem;     /* 128px */
+
+  /* ── Border radii (Apple-inspired: soft, organic) ───────── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Shadows (Apple: soft, layered, subtle) ─────────────── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.08), 0 10px 10px rgba(0,0,0,0.04);
+  --shadow-2xl: 0 25px 50px rgba(0,0,0,0.12);
+  --shadow-glow: 0 0 40px rgba(212,175,55,0.15);
+  --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.04);
+
+  /* ── Transitions (Apple: fast, snappy, invisible) ──────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 150ms var(--ease-spring);
+  --transition-base: 250ms var(--ease-spring);
+  --transition-slow: 400ms var(--ease-out-expo);
+  --transition-slower: 600ms var(--ease-out-expo);
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  --max-width-content: 1280px;
+  --header-height: 64px;
+}
+
+/* ================================================================
+   2. BASE STYLES — Apple-level polish
+   ================================================================ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    font-size: 16px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* ── Headings — Apple editorial hierarchy ──────────────── */
+  h1, h2, h3, h4, h5, h6,
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--color-primary);
+  }
+
+  /* Scale headings like Apple */
+  h1 { font-size: clamp(2.5rem, 5vw + 1rem, 4.5rem); }
+  h2 { font-size: clamp(2rem, 4vw + 0.5rem, 3.25rem); }
+  h3 { font-size: clamp(1.5rem, 3vw + 0.25rem, 2.25rem); }
+  h4 { font-size: clamp(1.25rem, 2vw + 0.25rem, 1.75rem); }
+  h5 { font-size: 1.125rem; }
+  h6 { font-size: 1rem; }
+
+  /* ── Links ─────────────────────────────────────────────── */
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  a:hover {
+    color: var(--color-accent);
+  }
+
+  a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.35), 0 0 0 6px rgba(11,37,69,0.08);
+    border-radius: 4px;
+  }
+
+  /* ── Buttons — base reset ─────────────────────────────── */
+  button {
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    border: none;
+    background: none;
+    padding: 0;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* ── Inputs ───────────────────────────────────────────── */
+  input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  /* ── Selection ─────────────────────────────────────────── */
+  ::selection {
+    background-color: rgba(212,175,55,0.2);
+    color: var(--color-text);
+  }
+
+  /* ── Scrollbar (Apple: minimal, native) ───────────────── */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--cc-charcoal-300);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--cc-charcoal-400);
+  }
+
+  /* ── Focus ring (Apple: consistent gold ring) ─────────── */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.35), 0 0 0 6px rgba(11,37,69,0.08);
+    border-radius: 8px;
+  }
+
+  /* ── Reduced motion ───────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ================================================================
+   3. PREMIUM COMPONENT SYSTEM
+   ================================================================ */
+
+@layer components {
+  /* ── Apple-style button: Primary ──────────────────────── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    background: var(--color-primary);
+    color: var(--cc-white);
+    border: 1px solid var(--color-primary);
+    transition: background var(--transition-fast),
+                box-shadow var(--transition-fast),
+                transform var(--transition-fast),
+                border-color var(--transition-fast);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    box-shadow: 0 4px 12px rgba(11,37,69,0.2);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    background: var(--cc-blue-700);
+    border-color: var(--cc-blue-700);
+    transform: translateY(0);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .btn-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.35),
+                0 0 0 6px rgba(11,37,69,0.08);
+  }
+
+  /* ── Apple-style button: Secondary ────────────────────── */
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    transition: background var(--transition-fast),
+                border-color var(--transition-fast),
+                box-shadow var(--transition-fast),
+                transform var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--cc-charcoal-50);
+    border-color: var(--cc-charcoal-300);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary:active:not(:disabled) {
+    background: var(--cc-charcoal-100);
+    transform: translateY(0);
+  }
+
+  /* ── Gold outline button (CongoConnect signature) ─────── */
+  .btn-gold {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0.625rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    background: transparent;
+    color: var(--color-accent-deep);
+    border: 1.5px solid var(--color-accent);
+    transition: background var(--transition-fast),
+                color var(--transition-fast),
+                box-shadow var(--transition-fast),
+                transform var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .btn-gold:hover:not(:disabled) {
+    background: var(--color-accent-soft);
+    color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(212,175,55,0.25);
+    transform: translateY(-1px);
+  }
+
+  .btn-gold:active:not(:disabled) {
+    background: var(--cc-gold-100);
+    transform: translateY(0);
+  }
+
+  /* ── Large CTA button ─────────────────────────────────── */
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0.875rem 2rem;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.4;
+    background: var(--color-accent);
+    color: var(--cc-charcoal-950);
+    border: 1px solid var(--color-accent);
+    transition: background var(--transition-base),
+                box-shadow var(--transition-base),
+                transform var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .btn-cta:hover:not(:disabled) {
+    background: var(--cc-gold-100);
+    border-color: var(--cc-gold-100);
+    color: var(--color-primary);
+    box-shadow: 0 8px 24px rgba(212,175,55,0.3);
+    transform: translateY(-2px);
+  }
+
+  .btn-cta:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  /* ── Ghost button ─────────────────────────────────────── */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    font-size: 0.875rem;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid transparent;
+    transition: background var(--transition-fast),
+                color var(--transition-fast),
+                border-color var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--cc-charcoal-100);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+
+  /* ── Icon button ──────────────────────────────────────── */
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    transition: background var(--transition-fast),
+                color var(--transition-fast),
+                border-color var(--transition-fast),
+                box-shadow var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .btn-icon:hover:not(:disabled) {
+    background: var(--cc-charcoal-100);
+    color: var(--color-text);
+    border-color: var(--cc-charcoal-300);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-icon:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.35),
+                0 0 0 6px rgba(11,37,69,0.08);
+  }
+
+  /* ── Premium card ─────────────────────────────────────── */
+  .card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-base),
+                transform var(--transition-base),
+                border-color var(--transition-base);
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--color-border-strong);
+  }
+
+  .card-interactive {
+    cursor: pointer;
+  }
+
+  .card-interactive:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-3px);
+  }
+
+  /* ── Premium input ────────────────────────────────────── */
+  .input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast),
+                box-shadow var(--transition-fast),
+                background var(--transition-fast);
+  }
+
+  .input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .input:hover:not(:disabled):not(:focus) {
+    border-color: var(--cc-charcoal-300);
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(11,37,69,0.08);
+  }
+
+  .input:disabled {
+    background: var(--cc-charcoal-100);
+    cursor: not-allowed;
+  }
+
+  /* ── Select ───────────────────────────────────────────── */
+  .select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237D7A74' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+
+  /* ── Premium label ───────────────────────────────────── */
+  .label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-1);
+  }
+
+  .label-lg {
+    font-size: 0.875rem;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Premium chip/tag ─────────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.25rem 0.875rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    transition: all var(--transition-fast);
+  }
+
+  .chip-neutral {
+    background: var(--cc-charcoal-100);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--cc-charcoal-200);
+  }
+
+  .chip-primary {
+    background: var(--color-primary);
+    color: var(--cc-white);
+  }
+
+  .chip-accent {
+    background: var(--color-accent);
+    color: var(--color-primary);
+  }
+
+  .chip-success {
+    background: var(--color-success-light);
+    color: var(--color-success);
+  }
+
+  /* ── Gold accent line ─────────────────────────────────── */
+  .gold-line {
+    height: 4px;
+    width: 3rem;
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    transition: width var(--transition-base);
+  }
+
+  .gold-line:hover {
+    width: 4rem;
+  }
+
+  /* ── Premium divider ──────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--color-border);
+    border: none;
+    margin: var(--space-6) 0;
+  }
+
+  .divider-soft {
+    height: 1px;
+    background: var(--color-border-subtle);
+    border: none;
+    margin: var(--space-4) 0;
+  }
+
+  /* ── Glassmorphism surface ─────────────────────────────── */
+  .glass {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+
+  .glass-dark {
+    background: rgba(11,37,69,0.8);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ── Gradient text ─────────────────────────────────────── */
+  .gradient-text {
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--cc-gold-100) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ── Premium divider with label ─────────────────────────── */
+  .divider-labeled {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .divider-labeled::before,
+  .divider-labeled::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  /* ── Loading skeleton ──────────────────────────────────── */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--cc-charcoal-100) 0%,
+      var(--cc-charcoal-50) 50%,
+      var(--cc-charcoal-100) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+  }
+
+  @keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── Status indicator ──────────────────────────────────── */
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+  }
+
+  .status-dot-success {
+    background: var(--color-success);
+    box-shadow: 0 0 6px rgba(27,77,46,0.4);
+  }
+
+  .status-dot-warning {
+    background: var(--color-warning);
+    box-shadow: 0 0 6px rgba(217,119,6,0.4);
+  }
+
+  .status-dot-error {
+    background: var(--color-error);
+    box-shadow: 0 0 6px rgba(220,38,38,0.4);
+  }
+
+  .status-dot-info {
+    background: var(--color-info);
+    box-shadow: 0 0 6px rgba(56,132,182,0.4);
+  }
+
+  /* ── Premium spinner ───────────────────────────────────── */
+  .spinner {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-radius: var(--radius-full);
+    animation: spin 0.8s linear infinite;
+  }
+
+  .spinner-sm {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .spinner-lg {
+    width: 2rem;
+    height: 2rem;
+    border-width: 3px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── Fade-in animation ─────────────────────────────────── */
+  .fade-in {
+    animation: fade-in var(--transition-slow) var(--ease-out-expo) both;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── Scale-in animation ────────────────────────────────── */
+  .scale-in {
+    animation: scale-in var(--transition-slow) var(--ease-out-back) both;
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* ================================================================
+   4. MOTION UTILITIES (Apple-inspired)
+   ================================================================ */
+
+@layer utilities {
+  /* Stagger animation delays */
+  .stagger-1 { animation-delay: 0ms; }
+  .stagger-2 { animation-delay: 80ms; }
+  .stagger-3 { animation-delay: 160ms; }
+  .stagger-4 { animation-delay: 240ms; }
+  .stagger-5 { animation-delay: 320ms; }
+  .stagger-6 { animation-delay: 400ms; }
+  .stagger-7 { animation-delay: 480ms; }
+  .stagger-8 { animation-delay: 560ms; }
+
+  /* Smooth scroll margin */
+  .scroll-mt-16 { scroll-margin-top: 4rem; }
+  .scroll-mt-20 { scroll-margin-top: 5rem; }
+  .scroll-mt-24 { scroll-margin-top: 6rem; }
+
+  /* Premium overflow */
+  .overflow-clip { overflow: clip; }
+
+  /* Touch-friendly hit targets */
+  @media (hover: none) and (pointer: coarse) {
+    .btn-primary,
+    .btn-secondary,
+    .btn-gold,
+    .btn-cta,
+    .btn-ghost,
+    .btn-icon,
+    .input,
+    .card-interactive {
+      min-height: 44px;
+    }
+  }
+}
+
+/* ================================================================
+   5. DARK MODE — Premium night experience
+   ================================================================ */
+
+.color-scheme-light {
+  color-scheme: light;
+}
+
+.color-scheme-dark {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  .auto-dark {
+    --color-bg: var(--cc-charcoal-950);
+    --color-surface: var(--cc-charcoal-900);
+    --color-surface-elevated: var(--cc-charcoal-800);
+    --color-text: var(--cc-charcoal-50);
+    --color-text-secondary: var(--cc-charcoal-400);
+    --color-text-muted: var(--cc-charcoal-500);
+    --color-border: rgba(255,255,255,0.08);
+    --color-border-strong: rgba(255,255,255,0.12);
+    --color-border-subtle: rgba(255,255,255,0.04);
+  }
+}
+
+/* ================================================================
+   6. UTILITY CLASSES
+   ================================================================ */
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .font-sans-custom {
+    font-family: var(--font-sans);
+  }
+
+  .font-display-custom {
+    font-family: var(--font-display);
+  }
+
+  .text-primary { color: var(--color-primary); }
+  .text-accent { color: var(--color-accent); }
+  .text-success { color: var(--color-success); }
+  .text-error { color: var(--color-error); }
+  .text-warning { color: var(--color-warning); }
+  .text-muted { color: var(--color-text-muted); }
+  .text-secondary { color: var(--color-text-secondary); }
+
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-accent { background-color: var(--color-accent); }
+  .bg-surface { background-color: var(--color-surface); }
+
+  .border-subtle { border-color: var(--color-border-subtle); }
+  .border-default { border-color: var(--color-border); }
+
+  .shadow-card {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-hover:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+/* ================================================================
+   7. RESPONSIVE HELPERS
+   ================================================================ */
+
+@media (max-width: 640px) {
+  :root {
+    --header-height: 56px;
+  }
+
+  h1 { font-size: 2.25rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.375rem; }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-height: 64px;
+  }
+}

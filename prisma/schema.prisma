@@ -1,0 +1,1693 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Refund {
+  id            String    @id @default(cuid())
+  reference     String    @unique
+  originalTxRef String    @unique
+  userId        String
+  amountUsd     Float
+  currency      String    @default("USD")
+  amountCdf     Float?
+  reason        String
+  status        String    @default("pending")
+  processedBy   String?
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime?
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model Chargeback {
+  id            String    @id @default(cuid())
+  reference     String    @unique
+  originalTxRef String
+  userId        String
+  amountUsd     Float
+  reason        String
+  status        String    @default("open")
+  disputeNo     String?
+  resolvedBy    String?
+  resolvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  closedAt      DateTime?
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model Complaint {
+  id              String    @id @default(cuid())
+  reference       String    @unique
+  userId          String
+  type            String    @default("general")
+  summary         String
+  status          String    @default("open")
+  priority        String    @default("normal")
+  assignedToEmail String?
+  category        String?
+  sourceRef       String?
+  customerMessage String?
+  resolution      String?
+  closedAt        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now())
+  user            User      @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  actorRole String
+  action    String
+  target    String
+  detail    String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model ClinicalData {
+  id          String   @id @default(cuid())
+  userId      String
+  dataType    String   @default("passenger_medical")
+  dataValue   String
+  consent     Boolean  @default(false)
+  dataPurpose String   @default("flight_assistance")
+  recordedAt  DateTime @default(now())
+  expiresAt   DateTime @default(dbgenerated("'2027-08-23 00:00:00 +00:00'"))
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model FraudAttempt {
+  id             String    @id @default(cuid())
+  txRef          String    @unique
+  userId         String
+  paymentMethod  String
+  amountUsd      Float
+  riskScore      Float     @default(0)
+  status         String    @default("flagged")
+  analystNotes   String?
+  flaggedAt      DateTime  @default(now())
+  resolvedAt     DateTime?
+  resolvedBy     String?
+  resolvedAction String?
+  user           User      @relation(fields: [userId], references: [id])
+}
+
+model City {
+  id          String   @id @default(cuid())
+  name        String
+  country     String
+  latitude    Float
+  longitude   Float
+  kind        String
+  flightsFrom Flight[] @relation("origin")
+  flightsTo   Flight[] @relation("destination")
+}
+
+model Flight {
+  id            String           @id @default(cuid())
+  flightNo      String           @unique
+  airline       String
+  airlineId     String?
+  originId      String
+  destinationId String
+  departTime    String
+  arriveTime    String
+  durationMin   Int
+  priceUsd      Float
+  daysOfWeek    String
+  status        String           @default("scheduled")
+  bookings      Booking[]
+  priceAlerts   PriceAlert[]
+  airlineRef    Airline?         @relation(fields: [airlineId], references: [id])
+  origin        City             @relation("origin", fields: [originId], references: [id])
+  destination   City             @relation("destination", fields: [destinationId], references: [id])
+  instances     FlightInstance[] @relation("flightInstances")
+
+  @@index([airlineId])
+}
+
+model Cargo {
+  id             String               @id @default(cuid())
+  trackingNo     String               @unique
+  status         String
+  origin         String
+  destination    String
+  weightKg       Float
+  contents       String
+  shippedAt      DateTime?
+  etaAt          DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime             @default(now())
+  recipientName  String?
+  recipientPhone String?
+  senderName     String?
+  senderPhone    String?
+  valueUsd       Float?
+  events         CargoEvent[]
+  insurance      CargoInsurance[]
+  customs        CustomsDeclaration[]
+}
+
+model FacilitationService {
+  id          String                       @id @default(cuid())
+  name        String
+  description String
+  category    String
+  priceUsd    Float                        @default(0)
+  isAvailable Boolean                      @default(true)
+  provider    String?
+  createdAt   DateTime                     @default(now())
+  bookings    FacilitationServiceBooking[]
+}
+
+model FacilitationServiceBooking {
+  id                    String              @id @default(cuid())
+  facilitationServiceId String
+  userId                String
+  date                  DateTime
+  time                  String?
+  guests                Int                 @default(1)
+  notes                 String?
+  status                String              @default("pending")
+  createdAt             DateTime            @default(now())
+  user                  User                @relation(fields: [userId], references: [id])
+  facilitationService   FacilitationService @relation(fields: [facilitationServiceId], references: [id])
+}
+
+model CargoEvent {
+  id        String   @id @default(cuid())
+  cargoId   String
+  status    String
+  location  String
+  note      String?
+  createdAt DateTime @default(now())
+  cargo     Cargo    @relation(fields: [cargoId], references: [id])
+}
+
+model Service {
+  id           String @id @default(cuid())
+  slug         String @unique
+  name         String
+  category     String
+  description  String
+  priceFromUsd Float?
+  icon         String
+}
+
+model Booking {
+  id            String   @id @default(cuid())
+  reference     String   @unique
+  userId        String?
+  passengerName String
+  email         String
+  phone         String?
+  flightId      String
+  seats         Int      @default(1)
+  totalUsd      Float
+  status        String   @default("confirmed")
+  createdAt     DateTime @default(now())
+  idDocs        String?
+  user          User?    @relation(fields: [userId], references: [id])
+  flight        Flight   @relation(fields: [flightId], references: [id])
+  tickets       Ticket[]
+
+  @@index([userId])
+}
+
+model Ticket {
+  id              String    @id @default(cuid())
+  ticketNo        String    @unique
+  bookingId       String
+  passengerName   String
+  seat            String?
+  cabinClass      String    @default("Y")
+  flightNo        String
+  originCode      String
+  destinationCode String
+  departDate      DateTime
+  idType          String    @default("passport")
+  documentNo      String    @default("")
+  nationality     String    @default("CD")
+  ageCategory     String    @default("adult")
+  accessibility   String    @default("none")
+  status          String    @default("issued")
+  issuedAt        DateTime  @default(now())
+  voidedAt        DateTime?
+  checkInAt       DateTime?
+  checkInStatus   String    @default("none")
+  checkIn         CheckIn?
+  boardingPass    BoardingPass?
+  booking         Booking   @relation(fields: [bookingId], references: [id])
+}
+
+model Aircraft {
+  id             String                @id @default(cuid())
+  registration   String                @unique
+  type           String
+  name           String?
+  seatsY         Int
+  seatsC         Int
+  rangeKm        Int
+  status         String                @default("active")
+  homeBase       String                @default("FIH")
+  engineHours    Float                 @default(0)
+  nextMaintDueAt DateTime?
+  airlineId      String?
+  createdAt      DateTime              @default(now())
+  airline        Airline?              @relation(fields: [airlineId], references: [id])
+  maintenance    AircraftMaintenance[]
+  dispatches     FlightDispatch[]
+  instances      FlightInstance[]      @relation("flightAircrafts")
+  maintLogs      MaintenanceLog[]      @relation("maintLogs")
+
+  @@index([airlineId])
+}
+
+model Crew {
+  id                String           @id @default(cuid())
+  employeeNo        String           @unique
+  firstName         String
+  lastName          String
+  role              String
+  baseAirport       String           @default("FIH")
+  licenseExpiry     DateTime?
+  dutyHoursThisWeek Float            @default(0)
+  maxDutyHours      Float            @default(60)
+  schedules         CrewSchedule[]
+  assignments       FlightInstance[] @relation("crewAssignments")
+
+  @@index([employeeNo])
+}
+
+model FlightInstance {
+  id          String      @id @default(cuid())
+  flightNo    String
+  airline     String
+  schedDepart DateTime
+  schedArrive DateTime
+  actDepart   DateTime?
+  actArrive   DateTime?
+  gate        String?
+  status      String      @default("scheduled")
+  delayMin    Int         @default(0)
+  aircraftId  String?
+  createdAt   DateTime    @default(now())
+  flight      Flight      @relation("flightInstances", fields: [flightNo], references: [flightNo], onDelete: Cascade)
+  aircraft    Aircraft?   @relation("flightAircrafts", fields: [aircraftId], references: [id])
+  passengers  Passenger[]
+  crew        Crew[]      @relation("crewAssignments")
+}
+
+model Passenger {
+  id            String         @id @default(cuid())
+  instanceId    String
+  name          String
+  passportNo    String?
+  nationality   String         @default("CD")
+  seat          String?
+  cabinClass    String         @default("Y")
+  checkInStatus String         @default("none")
+  bagCount      Int            @default(0)
+  bagTagNos     String?
+  bookingRef    String?
+  instance      FlightInstance @relation(fields: [instanceId], references: [id])
+}
+
+model MaintenanceLog {
+  id          String    @id @default(cuid())
+  aircraftId  String
+  type        String
+  description String
+  status      String    @default("open")
+  startedAt   DateTime  @default(now())
+  closedAt    DateTime?
+  aircraft    Aircraft  @relation("maintLogs", fields: [aircraftId], references: [id])
+}
+
+model User {
+  id                          String                       @id @default(cuid())
+  email                       String                       @unique
+  passwordHash                String
+  firstName                   String
+  lastName                    String
+  phone                       String?
+  nationality                 String                       @default("CD")
+  role                        String                       @default("traveler")
+  walletBalanceUsd            Float                        @default(0)
+  emailVerified               Boolean                      @default(false)
+  createdAt                   DateTime                     @default(now())
+  apiKeys                     ApiKey[]
+  attractionBookings          AttractionBooking[]
+  bookings                    Booking[]
+  chargebacks                 Chargeback[]
+  clinicalData                ClinicalData[]
+  complaints                  Complaint[]
+  facilitationServiceBookings FacilitationServiceBooking[]
+  fraudAttempts               FraudAttempt[]
+  giftCards                   GiftCard[]
+  groupBookings               GroupBooking[]
+  hotelBookings               HotelBooking[]
+  hotelReviews                HotelReview[]
+  insuranceBookings           InsuranceBooking[]
+  itineraries                 Itinerary[]
+  loungeBookings              LoungeBooking[]
+  loyaltyPoints               LoyaltyPoints?
+  notifications               Notification[]
+  verificationTokens          VerificationToken[]
+  pushSubscriptions           PushSubscription[]
+  packageBookings             PackageBooking[]
+  payments                    Payment[]
+  paymentMethods              PaymentMethod[]
+  pointsTransactions          PointsTransaction[]
+  priceAlerts                 PriceAlert[]
+  refunds                     Refund[]
+  reviews                     Review[]
+  tourBookings                TourBooking[]
+  transactions                Transaction[]
+  vehicleBookings             VehicleBooking[]
+    referrals                 Referral[]
+walletTransactions          WalletTransaction[]
+}
+
+model PaymentMethod {
+  id         String  @id @default(cuid())
+  userId     String
+  kind       String
+  label      String
+  identifier String
+  isDefault  Boolean @default(false)
+  user       User    @relation(fields: [userId], references: [id])
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  reference   String   @unique
+  userId      String
+  amount      Float
+  currency    String   @default("USD")
+  method      String
+  status      String   @default("pending")
+  description String?
+  metadata    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([reference])
+  @@index([status])
+}
+
+model Transaction {
+  id              String    @id @default(cuid())
+  reference       String    @unique
+  userId          String
+  amountUsd       Float
+  currency        String    @default("USD")
+  amountLocal     Float?
+  localCurrency   String?
+  method          String
+  providerRef     String?
+  status          String    @default("pending")
+  purpose         String
+  relatedRef      String?
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+  reason          String?
+  refundAmountUsd Float?
+  refundTx        String?
+  refundedAt      DateTime?
+  reversedAt      DateTime?
+  user            User      @relation(fields: [userId], references: [id])
+}
+
+model Partner {
+  id            String        @id @default(cuid())
+  company       String
+  contactEmail  String        @unique
+  passwordHash  String
+  category      String
+  commissionPct Float         @default(8)
+  balanceUsd    Float         @default(0)
+  status        String        @default("pending")
+  createdAt     DateTime      @default(now())
+  sales         PartnerSale[] @relation("partnerSales")
+}
+
+model PartnerSale {
+  id            String   @id @default(cuid())
+  partnerId     String
+  bookingRef    String
+  customerName  String
+  amountUsd     Float
+  commissionUsd Float
+  createdAt     DateTime @default(now())
+  partnerSales  Partner  @relation("partnerSales", fields: [partnerId], references: [id])
+
+  @@index([partnerId])
+  @@index([bookingRef])
+}
+
+model WalletTransaction {
+  id           String   @id @default(cuid())
+  userId       String
+  amountUsd    Float
+  direction    String
+  type         String
+  reference    String?
+  balanceAfter Float
+  description  String?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // "email_verify" | "password_reset"
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([token])
+}
+
+model PushSubscription {
+  id           String   @id @default(cuid())
+  userId       String
+  endpoint     String
+  p256dh       String
+  auth         String
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, endpoint])
+  @@index([userId])
+}
+
+model CheckIn {
+  id              String   @id @default(cuid())
+  ticketId        String   @unique
+  passengerName   String
+  seat            String?
+  cabinClass      String
+  status          String   @default("reference")
+  checkInAt       DateTime @default(now())
+  method          String   @default("online")
+  baggageCount    Int      @default(0)
+  baggageTagNos   String?
+  specialRequests String?
+  createdAt       DateTime @default(now())
+  ticket          Ticket   @relation(fields: [ticketId], references: [id])
+  boardingPass    BoardingPass?
+}
+
+model BoardingPass {
+  id            String   @id @default(cuid())
+  ticketId      String   @unique
+  checkInId     String   @unique
+  passengerName String
+  flightNo      String
+  seat          String?
+  cabinClass    String
+  originCode    String
+  destinationCode String
+  departDate    DateTime
+  gate          String?
+  boardingGroup String?
+  // Signed, machine-readable payload that is rendered as a QR code.
+  // Signature (HMAC) lets scanners verify authenticity offline.
+  qrPayload     String
+  signature     String
+  issuedAt      DateTime @default(now())
+  voidedAt      DateTime?
+  ticket        Ticket   @relation(fields: [ticketId], references: [id])
+  checkIn       CheckIn  @relation(fields: [checkInId], references: [id])
+
+  @@index([ticketId])
+  @@index([checkInId])
+}
+
+model FlightStatus {
+  id              String   @id @default(cuid())
+  flightNo        String   @unique
+  status          String   @default("scheduled")
+  gate            String?
+  terminal         String?
+  baggageClaim      String?
+  estimatedArrival  DateTime?
+  actualArrival     DateTime?
+  delayMin          Int      @default(0)
+  baggageCarousel String?
+  updatedAt       DateTime @default(now())
+}
+
+model CargoRoute {
+  id            String   @id @default(cuid())
+  origin        String
+  destination   String
+  mode          String   @default("air")
+  carrier       String?
+  durationDays  Int      @default(1)
+  pricePerKgUsd Float
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+}
+
+model CargoInsurance {
+  id          String   @id @default(cuid())
+  cargoId     String
+  provider    String
+  premiumUsd  Float
+  coverageUsd Float
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  cargo       Cargo    @relation(fields: [cargoId], references: [id])
+}
+
+model CustomsDeclaration {
+  id          String   @id @default(cuid())
+  cargoId     String
+  hsCode      String
+  description String
+  valueUsd    Float
+  weightKg    Float
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  cargo       Cargo    @relation(fields: [cargoId], references: [id])
+}
+
+model Airport {
+  id             String            @id @default(cuid())
+  code           String            @unique
+  name           String
+  city           String
+  country        String
+  timezone       String
+  lat            Float
+  lng            Float
+  createdAt      DateTime          @default(now())
+  lounges        AirportLounge[]
+  runways        AirportRunway[]
+  terminals      AirportTerminal[]
+  groundHandlers GroundHandler[]
+}
+
+model AirportLounge {
+  id             String          @id @default(cuid())
+  airportId      String
+  name           String
+  location       String
+  access         String          @default("business")
+  priceUsd       Float           @default(0)
+  amenities      String?
+  createdAt      DateTime        @default(now())
+  airport        Airport         @relation(fields: [airportId], references: [id])
+  loungeBookings LoungeBooking[]
+}
+
+model LoungeBooking {
+  id        String        @id @default(cuid())
+  userId    String
+  loungeId  String
+  flightNo  String
+  date      DateTime
+  guests    Int           @default(1)
+  totalUsd  Float
+  status    String        @default("confirmed")
+  createdAt DateTime      @default(now())
+  lounge    AirportLounge @relation(fields: [loungeId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
+}
+
+model FlightMap {
+  id        String   @id @default(cuid())
+  flightNo  String
+  lat       Float
+  lng       Float
+  altitude  Int?
+  speed     Float?
+  updatedAt DateTime @default(now())
+
+  @@index([flightNo, updatedAt])
+}
+
+model LoyaltyPoints {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  points        Int       @default(0)
+  tier          String    @default("none")
+  lifetimePoints Int       @default(0)
+  totalEarned   Int       @default(0)
+  totalRedeemed Int       @default(0)
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+  user          User      @relation(fields: [userId], references: [id])
+
+}
+
+model PointsTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  points      Int
+  type        String
+  description String
+  source      String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model PriceAlert {
+  id             String    @id @default(cuid())
+  userId         String
+  flightId       String?
+  flight         Flight?      @relation(fields: [flightId], references: [id])
+  origin         String
+  destination    String
+  targetPriceUsd Float
+  departureDate  DateTime?
+  status         String    @default("active")
+  createdAt      DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, status])
+}
+
+model FlashDeal {
+  id               String   @id @default(cuid())
+  title            String
+  description      String
+  origin           String
+  destination      String
+  originalPriceUsd Float
+  dealPriceUsd     Float
+  validFrom        DateTime
+  validTo          DateTime
+  status           String   @default("active")
+  createdAt        DateTime @default(now())
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String
+  key         String    @unique
+  name        String
+  permissions String?
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  status      String    @default("active")
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model ApiUsage {
+  id             String   @id @default(cuid())
+  apiKeyId       String
+  endpoint       String
+  method         String
+  statusCode     Int
+  responseTimeMs Float?
+  createdAt      DateTime @default(now())
+
+  @@index([apiKeyId, createdAt])
+}
+
+model Hotel {
+  id            String         @id @default(cuid())
+  name          String
+  address       String
+  city          String
+  country       String
+  latitude      Float
+  longitude     Float
+  phone         String?
+  email         String?
+  website       String?
+  image         String?
+  starRating    Float          @default(3)
+  pricePerNight Float
+  amenities     String?
+  description   String?
+  status        String         @default("active")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookings      HotelBooking[]
+  reviews       HotelReview[]
+}
+
+model HotelReview {
+  id          String   @id @default(cuid())
+  hotelId     String
+  userId      String?
+  guestName   String
+  guestEmail  String
+  rating      Int
+  comment     String   @default("")
+  cleanliness Int      @default(5)
+  location    Int      @default(5)
+  staff       Int      @default(5)
+  value       Int      @default(5)
+  created     DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id])
+  hotel       Hotel    @relation(fields: [hotelId], references: [id])
+}
+
+model HotelBooking {
+  id        String   @id @default(cuid())
+  hotelId   String
+  userId    String?
+  guestName String
+  email     String
+  phone     String?
+  checkIn   DateTime
+  checkOut  DateTime
+  guests    Int      @default(1)
+  roomType  String   @default("standard")
+  totalUsd  Float
+  status    String   @default("pending")
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  hotel     Hotel    @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+  @@index([userId])
+}
+
+model PackageDeal {
+  id          String           @id @default(cuid())
+  title       String
+  description String
+  origin      String
+  destination String
+  airline     String?
+  departure   DateTime
+  return      DateTime?
+  duration    Int              @default(1)
+  priceUsd    Float
+  image       String?
+  status      String           @default("active")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  bookings    PackageBooking[]
+}
+
+model PackageBooking {
+  id            String      @id @default(cuid())
+  reference     String      @unique
+  dealId        String
+  userId        String
+  passengerName String
+  email         String
+  phone         String?
+  guests        Int         @default(1)
+  adults        Int         @default(1)
+  children      Int         @default(0)
+  totalUsd      Float
+  status        String      @default("pending")
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          User        @relation(fields: [userId], references: [id])
+  deal          PackageDeal @relation(fields: [dealId], references: [id])
+
+  @@index([dealId])
+  @@index([userId])
+}
+
+model Vehicle {
+  id           String           @id @default(cuid())
+  name         String
+  brand        String
+  model        String
+  category     String           @default("car")
+  transmission String           @default("auto")
+  fuel         String           @default("gasoline")
+  luggageSlots Int              @default(2)
+  seats        Int              @default(5)
+  dailyRateUsd Float
+  image        String           @default("/placeholder-vehicle.jpg")
+  location     String           @default("Kinshasa")
+  status       String           @default("available")
+  licensePlate String?
+  createdAt    DateTime         @default(now())
+  bookings     VehicleBooking[]
+}
+
+model VehicleBooking {
+  id              String    @id @default(cuid())
+  reference       String    @unique
+  vehicleId       String
+  userId          String
+  pickupCity      String
+  pickupDate      DateTime
+  pickupTime      String?
+  dropoffCity     String?
+  dropoffDate     DateTime?
+  dropoffTime     String?
+  driverName      String
+  driverLicenseNo String
+  guests          Int       @default(1)
+  totalUsd        Float
+  status          String    @default("confirmed")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id])
+  vehicle         Vehicle   @relation(fields: [vehicleId], references: [id])
+
+  @@index([vehicleId])
+  @@index([userId])
+}
+
+model Attraction {
+  id           String              @id @default(cuid())
+  name         String
+  city         String
+  country      String              @default("CD")
+  description  String
+  category     String              @default("sightseeing")
+  latitude     Float?
+  longitude    Float?
+  image        String              @default("/placeholder-attraction.jpg")
+  entryFeeUsd  Float               @default(0)
+  address      String?
+  openingHours String?
+  status       String              @default("open")
+  reviewCount  Int                 @default(0)
+  avgRating    Float               @default(0)
+  createdAt    DateTime            @default(now())
+  bookings     AttractionBooking[]
+}
+
+model AttractionBooking {
+  id           String     @id @default(cuid())
+  reference    String     @unique
+  attractionId String
+  userId       String
+  date         DateTime
+  time         String?
+  guests       Int        @default(1)
+  totalUsd     Float
+  status       String     @default("confirmed")
+  notes        String?
+  createdAt    DateTime   @default(now())
+  user         User       @relation(fields: [userId], references: [id])
+  attraction   Attraction @relation(fields: [attractionId], references: [id])
+
+  @@index([attractionId])
+  @@index([userId])
+}
+
+model Tour {
+  id            String        @id @default(cuid())
+  name          String
+  city          String
+  country       String        @default("CD")
+  description   String
+  durationHours Float         @default(3)
+  category      String        @default("guided")
+  language      String        @default("en")
+  includes      String        @default("guide,transport")
+  meetingPoint  String?
+  maxGuests     Int           @default(10)
+  perPersonUsd  Float
+  image         String        @default("/placeholder-tour.jpg")
+  status        String        @default("available")
+  reviewCount   Int           @default(0)
+  avgRating     Float         @default(0)
+  createdAt     DateTime      @default(now())
+  bookings      TourBooking[]
+}
+
+model TourBooking {
+  id        String   @id @default(cuid())
+  reference String   @unique
+  tourId    String
+  userId    String
+  date      DateTime
+  guests    Int      @default(1)
+  totalUsd  Float
+  status    String   @default("confirmed")
+  notes     String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  tour      Tour     @relation(fields: [tourId], references: [id])
+
+  @@index([tourId])
+  @@index([userId])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  targetId    String
+  targetType  String
+  userId      String
+  rating      Float
+  title       String
+  review      String
+  isVerified  Boolean  @default(false)
+  helpfulness Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([targetId, targetType])
+  @@index([userId])
+  @@index([rating])
+}
+
+model Insurance {
+  id          String             @id @default(cuid())
+  name        String
+  provider    String
+  type        String             @default("flight")
+  coverageUsd Float
+  premiumUsd  Float
+  description String
+  included    String             @default("cancellation,delay,medical")
+  excluded    String             @default("pre-existing")
+  currency    String             @default("USD")
+  status      String             @default("active")
+  image       String             @default("/placeholder-insurance.jpg")
+  createdAt   DateTime           @default(now())
+  bookings    InsuranceBooking[]
+}
+
+model InsuranceBooking {
+  id          String    @id @default(cuid())
+  reference   String    @unique
+  insuranceId String
+  userId      String
+  name        String
+  email       String
+  dob         DateTime?
+  passportNo  String?
+  destination String?
+  tripDate    DateTime?
+  coverageUsd Float
+  premiumUsd  Float
+  status      String    @default("purchased")
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  insurance   Insurance @relation(fields: [insuranceId], references: [id])
+
+  @@index([insuranceId])
+  @@index([userId])
+}
+
+model GroupBooking {
+  id              String        @id @default(cuid())
+  reference       String        @unique
+  userId          String
+  name            String
+  email           String
+  phone           String?
+  flightId        String?
+  flightNo        String?
+  originCode      String?
+  destinationCode String?
+  departDate      DateTime?
+  guests          Int           @default(1)
+  totalUsd         Float         @default(0)
+  status          String        @default("draft")
+  description       String?
+  maxGuests       Int           @default(50)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  user            User          @relation(fields: [userId], references: [id])
+  members         GroupMember[]
+}
+
+model GroupMember {
+  id          String       @id @default(cuid())
+  groupId     String
+  name        String
+  email       String
+  phone       String?
+  status      String       @default("pending")
+  respondedAt DateTime?
+  createdAt   DateTime     @default(now())
+  group       GroupBooking @relation(fields: [groupId], references: [id])
+
+  @@index([groupId])
+}
+
+model CorporateAccount {
+  id             String             @id @default(cuid())
+  companyName    String
+  contactEmail   String             @unique
+  contactName    String
+  phone          String?
+  address        String?
+  category       String             @default("enterprise")
+  country        String             @default("CD")
+  status         String             @default("approved")
+  creditLimitUsd Float              @default(50000)
+  paidToDateUsd  Float              @default(0)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  bookings       CorporateBooking[]
+  members        CorporateMember[]
+  policies       CorporatePolicy[]
+}
+
+model CorporateMember {
+  id         String             @id @default(cuid())
+  accountId  String
+  email      String             @unique
+  firstName  String
+  lastName   String
+  role       String             @default("traveler")
+  department String?
+  phone      String?
+  createdAt  DateTime           @default(now())
+  bookings   CorporateBooking[]
+  account    CorporateAccount   @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+}
+
+model CorporatePolicy {
+  id                    String           @id @default(cuid())
+  accountId             String
+  name                  String
+  description           String?
+  classAllowed          String           @default("economy")
+  maxSpendUsd           Float            @default(2000)
+  maxAdvanceBookingDays Int              @default(90)
+  maxLastMinuteDays     Int              @default(2)
+  allowedAirlines       String?
+  requiresApproval      Boolean          @default(false)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  account               CorporateAccount @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+}
+
+model CorporateBooking {
+  id          String           @id @default(cuid())
+  reference   String           @unique
+  accountId   String
+  memberId    String
+  bookingRef  String
+  productType String           @default("flight")
+  productName String
+  purpose     String           @default("business")
+  totalUsd    Float
+  status      String           @default("pending")
+  approvedBy  String?
+  approvedAt  DateTime?
+  expensedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  member      CorporateMember  @relation(fields: [memberId], references: [id])
+  account     CorporateAccount @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([memberId])
+  @@index([bookingRef])
+}
+
+model Itinerary {
+  id          String          @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  status      String          @default("draft")
+  isPublic    Boolean         @default(false)
+  shareCode   String?         @unique
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  user        User            @relation(fields: [userId], references: [id])
+  items       ItineraryItem[] @relation("itineraryItems")
+}
+
+model ItineraryItem {
+  id          String    @id @default(cuid())
+  itineraryId String
+  type        String
+  title       String
+  subtitle    String?
+  date        DateTime?
+  time        String?
+  duration    String?
+  location    String?
+  costUsd     Float     @default(0)
+  notes       String?
+  bookingRef  String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  itinerary   Itinerary @relation("itineraryItems", fields: [itineraryId], references: [id])
+
+  @@index([itineraryId])
+  @@index([type])
+}
+
+model GiftCard {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  userId         String
+  amountUsd      Float
+  currency       String    @default("USD")
+  status         String    @default("active")
+  recipientEmail String?
+  message        String?
+  sentAt         DateTime?
+  redeemedAt     DateTime?
+  redeemedBy     String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation(fields: [userId], references: [id])
+
+  @@index([code])
+  @@index([userId])
+  @@index([status])
+  @@index([recipientEmail])
+}
+
+model BaggageAllowance {
+  id            String   @id @default(cuid())
+  flightNo      String
+  cabinClass    String
+  freeCheckedKg Int      @default(0)
+  freeCarryOn   Int      @default(1)
+  maxWeightKg   Float    @default(23)
+  maxPieces     Int      @default(1)
+  excessFeeUsd  Float    @default(50)
+  createdAt     DateTime @default(now())
+
+  @@index([flightNo, cabinClass])
+}
+
+model VisaRequirement {
+  id             String   @id @default(cuid())
+  nationality    String   @default("CD")
+  destination    String
+  visaRequired   Boolean  @default(false)
+  visaType       String?
+  processingDays Int      @default(0)
+  costUsd        Float    @default(0)
+  url            String?
+  notes          String?
+  lastUpdated    DateTime @default(now())
+
+  @@index([nationality, destination])
+}
+
+model SeatMap {
+  id           String   @id @default(cuid())
+  aircraftType String
+  layout       String   @default("{}")
+  basePriceUsd Float    @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([aircraftType])
+  @@index([createdAt])
+}
+
+model UpsellOffer {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  icon          String   @default("shield")
+  category      String   @default("insurance")
+  priceUsd      Float
+  minSpendUsd   Float    @default(0)
+  image         String   @default("/placeholder-upgrade.jpg")
+  status        String   @default("active")
+  targetProduct String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([targetProduct])
+}
+
+model Airline {
+  id           String     @id @default(cuid())
+  code         String     @unique
+  name         String
+  country      String     @default("CD")
+  logo         String?
+  website      String?
+  contactEmail String?
+  contactPhone String?
+  status       String     @default("active")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  aircraft     Aircraft[]
+  flights      Flight[]
+
+  @@index([code])
+  @@index([status])
+}
+
+model AirportTerminal {
+  id        String        @id @default(cuid())
+  airportId String
+  code      String
+  name      String
+  createdAt DateTime      @default(now())
+  gates     AirportGate[]
+  airport   Airport       @relation(fields: [airportId], references: [id])
+
+  @@unique([airportId, code])
+  @@index([airportId])
+}
+
+model AirportGate {
+  id           String          @id @default(cuid())
+  terminalId   String
+  code         String
+  status       String          @default("available")
+  aircraftType String?
+  createdAt    DateTime        @default(now())
+  terminal     AirportTerminal @relation(fields: [terminalId], references: [id])
+
+  @@unique([terminalId, code])
+  @@index([terminalId])
+  @@index([status])
+}
+
+model AirportRunway {
+  id        String   @id @default(cuid())
+  airportId String
+  code      String
+  lengthM   Int
+  widthM    Int
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  airport   Airport  @relation(fields: [airportId], references: [id])
+
+  @@unique([airportId, code])
+  @@index([airportId])
+  @@index([status])
+}
+
+model GroundHandler {
+  id           String   @id @default(cuid())
+  airportId    String
+  companyName  String
+  serviceType  String   @default("ramp")
+  contactName  String?
+  contactPhone String?
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  airport      Airport  @relation(fields: [airportId], references: [id])
+
+  @@index([airportId])
+  @@index([serviceType])
+  @@index([status])
+}
+
+model FlightDispatch {
+  id         String    @id @default(cuid())
+  flightNo   String
+  date       DateTime
+  aircraftId String?
+  captainId  String?
+  foId       String?
+  status     String    @default("planned")
+  fuelKg     Float?
+  payloadKg  Float?
+  weather    String?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  aircraft   Aircraft? @relation(fields: [aircraftId], references: [id])
+
+  @@index([flightNo, date])
+  @@index([status])
+}
+
+model CrewSchedule {
+  id        String   @id @default(cuid())
+  crewId    String
+  flightNo  String
+  date      DateTime
+  role      String   @default("crew")
+  status    String   @default("scheduled")
+  createdAt DateTime @default(now())
+  crew      Crew     @relation(fields: [crewId], references: [id])
+
+  @@index([crewId, date])
+  @@index([flightNo, date])
+  @@index([status])
+}
+
+model AircraftMaintenance {
+  id          String    @id @default(cuid())
+  aircraftId  String
+  type        String    @default("A")
+  description String
+  status      String    @default("scheduled")
+  scheduledAt DateTime
+  startedAt   DateTime?
+  completedAt DateTime?
+  technician  String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  aircraft    Aircraft  @relation(fields: [aircraftId], references: [id])
+
+  @@index([aircraftId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+// ─── REFERRALS ─────────────────────────────────────────────────────
+model Referral {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  userId       String
+  referredEmail String?
+  status       String   @default("pending") // pending, accepted, rewarded
+  rewardUsd    Float    @default(10) // $10 per successful referral
+  createdAt    DateTime @default(now())
+  acceptedAt   DateTime?
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([code])
+  @@index([status])
+}
+
+
+// ─── SEARCH SESSION ───────────────────────────────────────────────
+model SearchSession {
+  id          String   @id @default(cuid())
+  userId      String?
+  searchType  String
+  query       String?
+  filters     String?
+  results     String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([searchType])
+  @@index([createdAt])
+}
+
+
+// ─── LANGUAGE TRANSLATIONS ─────────────────────────────────────────
+model Translation {
+  id              String   @id @default(cuid())
+  locale          String
+  key             String
+  value           String
+  translationType String   @default("ui")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([locale, key, translationType])
+  @@index([locale])
+  @@index([key])
+  @@index([translationType])
+}
+
+// ─── BOOKING CONFIRMATIONS ─────────────────────────────────────────
+model BookingConfirmation {
+  id              String   @id @default(cuid())
+  bookingId       String   @unique
+  channel         String   @default("email")
+  statusCode      String   @default("pending")
+  payload         String?
+  response        String?
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  failedAt        DateTime?
+  error           String?
+  retryCount      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([statusCode])
+  @@index([channel])
+  @@index([sentAt])
+}
+
+// ─── AIRPORT SERVICES MODULE ───────────────────────────────────────
+
+// Points of interest / indoor map nodes within an airport
+model AirportPOI {
+  id          String   @id @default(cuid())
+  airportId   String
+  category    String // gate, security, immigration, customs, restaurant, cafe, dutyfree, lounge, pray, restroom, elevator, escalator, charging, exchange, atm, info, medical, lostfound, taxi, rideshare, carrental, parking, wifi, police, embassy
+  name        String
+  level       String?  // e.g. "L2", "Concourse A"
+  lat         Float?
+  lng         Float?
+  details     String?  // opening hours, description
+  hours       String?
+  createdAt   DateTime @default(now())
+
+  @@index([airportId, category])
+}
+
+// Airport transportation bookings (pickup, dropoff, private, shuttle...)
+model AirportTransfer {
+  id            String   @id @default(cuid())
+  userId        String
+  airportId     String
+  type          String   @default("pickup") // pickup, dropoff, private, luxury, shuttle, business, family
+  flightNo      String?
+  pickupAt      DateTime?
+  address       String?
+  vehicleClass  String   @default("standard")
+  status        String   @default("requested") // requested, assigned, enroute, arrived, completed, cancelled
+  driverName    String?
+  driverPhone   String?
+  vehiclePlate  String?
+  vehicleModel  String?
+  etaMin        Int?
+  liveLat       Float?
+  liveLng       Float?
+  priceUsd      Float    @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([airportId])
+  @@index([status])
+}
+
+// Passenger assistance / concierge service requests
+model AirportAssistance {
+  id           String   @id @default(cuid())
+  userId       String
+  airportId    String
+  type         String   // meet_assist, fast_track, vip, porter, wheelchair, elderly, child, interpreter, business_concierge, escort, personal_assistant, translation, shopping
+  flightNo     String?
+  partySize    Int      @default(1)
+  notes        String?
+  status       String   @default("requested") // requested, confirmed, in_progress, completed, cancelled
+  providerId   String?  // partner providing the service
+  priceUsd     Float    @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([airportId])
+  @@index([type])
+  @@index([status])
+}
+
+// Baggage service requests & reports
+model BaggageService {
+  id            String   @id @default(cuid())
+  userId        String
+  flightNo      String?
+  type          String   // track, extra, report_delayed, report_lost, claim_location
+  status        String   @default("open")
+  description   String?
+  claimArea     String?
+  priceUsd      Float    @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([flightNo])
+  @@index([type])
+}
+
+// Airport dining: restaurants, menus, table reservations, food orders
+model AirportDining {
+  id          String   @id @default(cuid())
+  airportId   String
+  name        String
+  category    String   @default("restaurant") // restaurant, cafe, bar
+  level       String?
+  cuisine     String?
+  hours       String?
+  createdAt   DateTime @default(now())
+
+  @@index([airportId])
+}
+
+model AirportMenuItem {
+  id          String   @id @default(cuid())
+  diningId    String
+  name        String
+  description String?
+  priceUsd    Float    @default(0)
+  prepMin     Int?
+  category    String?
+
+  @@index([diningId])
+}
+
+model AirportFoodOrder {
+  id         String   @id @default(cuid())
+  userId     String
+  diningId   String
+  items      String   // JSON array of {itemId, qty}
+  totalUsd   Float
+  mode       String   @default("pickup") // pickup, dine_in
+  status     String   @default("placed") // placed, preparing, ready, completed
+  pickupAt   DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([diningId])
+}
+
+// Airport shopping (duty free, electronics, fashion, etc.)
+model AirportShop {
+  id          String   @id @default(cuid())
+  airportId   String
+  name        String
+  category    String   @default("dutyfree") // dutyfree, electronics, fashion, gifts, beauty, food, essentials
+  level       String?
+  hours       String?
+  createdAt   DateTime @default(now())
+
+  @@index([airportId, category])
+}
+
+// Car rentals at airport
+model AirportCarRental {
+  id           String   @id @default(cuid())
+  airportId    String
+  company      String
+  vehicleClass String
+  model        String
+  dailyRateUsd Float
+  available    Int      @default(1)
+  createdAt    DateTime @default(now())
+
+  @@index([airportId])
+}
+
+model AirportCarRentalBooking {
+  id            String   @id @default(cuid())
+  userId        String
+  rentalId      String
+  pickupAt      DateTime
+  returnAt      DateTime
+  flightNo      String?
+  status        String   @default("reserved")
+  totalUsd      Float
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([rentalId])
+}
+
+// Local transport options around airport
+model AirportLocalTransport {
+  id          String   @id @default(cuid())
+  airportId   String
+  mode        String   // taxi, rideshare, bus, metro, train, shuttle
+  name        String
+  priceFromUsd Float   @default(0)
+  durationMin Int?
+  notes       String?
+
+  @@index([airportId, mode])
+}
+
+// Currency services
+model AirportCurrency {
+  id            String   @id @default(cuid())
+  airportId     String
+  type          String   // exchange, atm
+  name          String
+  level         String?
+  currencies    String?  // comma list
+  hours         String?
+
+  @@index([airportId, type])
+}
+
+// Wi-Fi info
+model AirportWifi {
+  id          String   @id @default(cuid())
+  airportId   String
+  ssid        String
+  instructions String?
+  timeLimitMin Int?
+  notes       String?
+  @@index([airportId])
+}
+
+// Emergency contacts per airport
+model AirportEmergency {
+  id          String   @id @default(cuid())
+  airportId   String
+  category    String   // police, medical, fire, lostfound, embassy, airline
+  name        String
+  phone       String?
+  details     String?
+
+  @@index([airportId, category])
+}
+
+// AI airport assistant conversation log
+model AirportAssistantLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  message     String
+  response    String
+  usedLiveData Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Travel checklist items (per user)
+model TravelChecklistItem {
+  id          String   @id @default(cuid())
+  userId      String
+  label       String
+  done        Boolean  @default(false)
+  tripRef     String?  // optional link to a flight/booking
+  createdAt   DateTime @default(now())
+
+  @@index([userId, tripRef])
+}

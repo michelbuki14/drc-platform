@@ -1,0 +1,118 @@
+// Attraction & Tour models for CongoConnect
+// Prisma schema extension — add these models to prisma/schema.prisma
+
+model Attraction {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  city        String
+  country     String   @default("DRC")
+  description String
+  category    String   // cultural, wildlife, adventure, historical, culinary
+  latitude    Float?
+  longitude   Float?
+  imageUrl    String?
+  // Operational
+  priceUsd    Float    @default(0)
+  durationMin Int?     // typical visit duration in minutes
+   covid19Notes  String? // health/safety notes
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  tags        String?  // JSON array: ["guide", "family", "photography"]
+  // Relations
+  bookings    AttractionBooking[]
+  tours       Tour[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  @@index([city])
+  @@index([category])
+  @@index([slug])
+}
+
+model Tour {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  attractionId String
+  attraction  Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  description String
+  itinerary   String   // JSON: array of { time, activity, location }
+  category    String   // day-trip, multi-day, guided, self-guided, specialty
+  priceUsd    Float
+  durationMin Int      // total tour duration in minutes
+  maxGroupSize Int     @default(12)
+  languages   String?  // JSON array: ["en", "fr", "sw"]
+  includes    String?  // JSON array: ["transport", "meals", "equipment", "entry"]
+  covid19Notes String?
+  pickupOptions String? // JSON: ["hotel", "airport", "lounge"]
+  imageUrl    String?
+  available   Boolean  @default(true)
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  bookings    TourBooking[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  @@index([attractionId])
+  @@index([category])
+  @@index([slug])
+  @@index([available])
+}
+
+model AttractionBooking {
+  id           String   @id @default(cuid())
+  reference    String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  attractionId String
+  attraction   Attraction @relation(fields: [attractionId], references: [id])
+  visitDate    DateTime
+  guests       Int      @default(1)
+  totalUsd     Float
+  status       String   @default("confirmed") // confirmed, cancelled, completed, no_show
+  notes        String?
+  specialRequests String?
+  // Payment
+  paymentMethod String? // wallet, card, mpesa, airtel_money, orange_money, bank_transfer
+  txRef        String?
+  refundedAt   DateTime?
+  refundAmountUsd Float?
+  // Audit
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  @@index([userId])
+  @@index([attractionId])
+  @@index([visitDate])
+  @@index([status])
+}
+
+model TourBooking {
+  id            String   @id @default(cuid())
+  reference     String   @unique
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  tourId        String
+  tour          Tour     @relation(fields: [tourId], references: [id])
+  tourDate      DateTime
+  guestCount    Int      @default(1)
+  pickupLocation String? // hotel name, airport code, etc.
+  pickupTime    String?  // "09:00" etc.
+  totalUsd      Float
+  status        String   @default("confirmed") // confirmed, cancelled, completed, no_show
+  notes         String?
+  specialRequests String?
+  // Payment
+  paymentMethod String?
+  txRef         String?
+  refundedAt    DateTime?
+  refundAmountUsd Float?
+  // Guide assignment (when implemented)
+  guideName     String?
+  guideContact  String?
+  // Audit
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  @@index([userId])
+  @@index([tourId])
+  @@index([tourDate])
+  @@index([status])
+}

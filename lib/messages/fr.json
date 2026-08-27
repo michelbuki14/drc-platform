@@ -1,0 +1,12 @@
+{
+  "nav": {
+    "flights": "Vols",
+    "cargo": "Cargo",
+    "assistance": "Assistance",
+    "trips": "Voyages",
+    "account": "Compte",
+    "partner": "Partenaire",
+    "ops": "Console Ops",
+    "sign_in": "Connexion"
+  }
+}

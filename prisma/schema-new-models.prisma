@@ -1,0 +1,418 @@
+// ─── WAVE 1: VEHICLES ──────────────────────────────────────────────────────
+model Vehicle {
+  id             String   @id @default(cuid())
+  name           String
+  brand          String
+  model          String
+  category       String   @default("car")   // car, suv, van, truck
+  transmission   String   @default("auto") // auto, manual
+  fuel           String   @default("gasoline")
+  luggageSlots   Int      @default(2)
+  seats          Int      @default(5)
+  dailyRateUsd   Float
+  image          String   @default("/placeholder-vehicle.jpg")
+  location       String   @default("Kinshasa")
+  status         String   @default("available") // available, booked, maintenance
+  licensePlate   String?
+  createdAt      DateTime @default(now())
+  bookings       VehicleBooking[]
+}
+
+model VehicleBooking {
+  id              String   @id @default(cuid())
+  reference       String   @unique
+  vehicleId       String
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [id])
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  pickupCity      String
+  pickupDate      DateTime
+  pickupTime      String?
+  dropoffCity     String?
+  dropoffDate     DateTime?
+  dropoffTime     String?
+  driverName      String
+  driverLicenseNo String
+  guests         Int      @default(1)
+  totalUsd       Float
+  status         String   @default("confirmed")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([vehicleId])
+  @@index([user])
+}
+
+// ─── WAVE 1: ATTRACTIONS & TOURS ────────────────────────────────────────────
+model Attraction {
+  id          String   @id @default(cuid())
+  name        String
+  city        String
+  country     String   @default("CD")
+  description String
+  category    String   @default("sightseeing") // sightseeing, museum, park, market, culture
+  latitude    Float?
+  longitude   Float?
+  image       String   @default("/placeholder-attraction.jpg")
+  entryFeeUsd Float    @default(0)
+  address     String?
+  openingHours String?
+  status      String   @default("open") // open, closed, seasonal
+  reviewCount Int      @default(0)
+  avgRating   Float    @default(0)
+  createdAt   DateTime @default(now())
+  bookings    AttractionBooking[]
+}
+
+model AttractionBooking {
+  id         String   @id @default(cuid())
+  reference  String   @unique
+  attractionId String
+  attraction Attraction @relation(fields: [attractionId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  date       DateTime
+  time       String?
+  guests     Int      @default(1)
+  totalUsd   Float
+  status     String   @default("confirmed")
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  @@index([attractionId])
+  @@index([user])
+}
+
+model Tour {
+  id          String   @id @default(cuid())
+  name        String
+  city        String
+  country     String   @default("CD")
+  description String
+  durationHours Float  @default(3)
+  category    String   @default("guided") // guided, selfguided, adventure, cultural, food
+  language    String   @default("en")
+  includes    String   @default("guide,transport")
+  meetingPoint String?
+  maxGuests   Int     @default(10)
+  perPersonUsd Float
+  image       String   @default("/placeholder-tour.jpg")
+  status      String  @default("available")
+  reviewCount Int     @default(0)
+  avgRating   Float   @default(0)
+  createdAt   DateTime @default(now())
+  bookings    TourBooking[]
+}
+
+model TourBooking {
+  id          String   @id @default(cuid())
+  reference   String   @unique
+  tourId      String
+  tour        Tour     @relation(fields: [tourId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  date        DateTime
+  guests      Int      @default(1)
+  totalUsd    Float
+  status      String   @default("confirmed")
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@index([tourId])
+  @@index([user])
+}
+
+// ─── WAVE 1: REVIEWS ────────────────────────────────────────────────────────
+model Review {
+  id          String   @id @default(cuid())
+  targetId    String   // flightId | cargoId | hotelId | vehicleId | serviceId | attractionId | tourId
+  targetType  String   // flight | cargo | hotel | vehicle | service | attraction | tour
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  rating      Float    // 1-5
+  title       String
+  review      String
+  isVerified  Boolean  @default(false)   // true if user actually used the product
+  helpfulness Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([targetId, targetType])
+  @@index([userId])
+  @@index([rating])
+}
+
+// ─── WAVE 2: INSURANCE ─────────────────────────────────────────────────────
+model Insurance {
+  id           String   @id @default(cuid())
+  name         String
+  provider     String
+  type         String   @default("flight")   // flight, travel, medical
+  coverageUsd  Float
+  premiumUsd   Float
+  description  String
+  included     String   @default("cancellation,delay,medical")
+  excluded     String   @default("pre-existing")
+  currency     String   @default("USD")
+  status       String   @default("active")
+  image        String   @default("/placeholder-insurance.jpg")
+  createdAt    DateTime @default(now())
+  bookings     InsuranceBooking[]
+}
+
+model InsuranceBooking {
+  id          String   @id @default(cuid())
+  reference   String   @unique
+  insuranceId String
+  insurance   Insurance @relation(fields: [insuranceId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  email       String
+  dob         DateTime?
+  passportNo  String?
+  destination String?
+  tripDate    DateTime?
+  coverageUsd Float
+  premiumUsd  Float
+  status      String   @default("purchased")
+  createdAt   DateTime @default(now())
+
+  @@index([insuranceId])
+  @@index([user])
+}
+
+// ─── WAVE 3: GROUP BOOKINGS ────────────────────────────────────────────────
+model GroupBooking {
+  id           String   @id @default(cuid())
+  reference    String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  name         String
+  email        String
+  phone        String?
+  flightId     String?
+  flightNo     String?
+  originCode   String?
+  destinationCode String?
+  departDate   DateTime?
+  guests       Int      @default(1)
+  status       String   @default("draft") // draft, invited, confirmed, cancelled
+  maxGuests    Int      @default(50)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  members      GroupMember[]
+}
+
+model GroupMember {
+  id         String   @id @default(cuid())
+  groupId    String
+  group      GroupBooking @relation(fields: [groupId], references: [id])
+  name       String
+  email      String
+  phone      String?
+  status     String   @default("pending") // pending, invited, accepted, declined
+  respondedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([groupId])
+}
+
+// ─── WAVE 3: CORPORATE TRAVEL ───────────────────────────────────────────────
+model CorporateAccount {
+  id              String   @id @default(cuid())
+  companyName     String
+  contactEmail    String   @unique
+  contactName     String
+  phone           String?
+  address         String?
+  category        String   @default("enterprise") // enterprise, smb, ngo
+  country         String   @default("CD")
+  status          String   @default("approved") // approved, pending
+  creditLimitUsd  Float    @default(50000)
+  paidToDateUsd   Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  members         CorporateMember[]
+  policies        CorporatePolicy[]
+  bookings        CorporateBooking[]
+}
+
+model CorporateMember {
+  id           String   @id @default(cuid())
+  accountId   String
+  account     CorporateAccount @relation(fields: [accountId], references: [id])
+  email       String   @unique
+  firstName   String
+  lastName    String
+  role        String   @default("traveler") // traveler, approver, admin
+  department  String?
+  phone       String?
+  createdAt   DateTime @default(now())
+
+  @@index([accountId])
+}
+
+model CorporatePolicy {
+  id             String   @id @default(cuid())
+  accountId      String
+  account        CorporateAccount @relation(fields: [accountId], references: [id])
+  name           String
+  description    String?
+  classAllowed   String   @default("economy") // economy, premium_economy, business, first
+  maxSpendUsd    Float    @default(2000)
+  maxAdvanceBookingDays Int @default(90)
+  maxLastMinuteDays Int    @default(2)
+  allowedAirlines String?  // comma separated
+  requiresApproval Boolean @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([accountId])
+}
+
+model CorporateBooking {
+  id              String   @id @default(cuid())
+  reference       String   @unique
+  accountId       String
+  account         CorporateAccount @relation(fields: [accountId], references: [id])
+  memberId        String
+  member          CorporateMember  @relation(fields: [memberId], references: [id])
+  bookingRef      String   // reference to Booking | HotelBooking | VehicleBooking
+  productType     String   @default("flight") // flight, hotel, vehicle, package
+  productName     String
+  purpose        String   @default("business")
+  totalUsd        Float
+  status          String   @default("pending") // pending, approved, booked, expensed
+  approvedBy      String?
+  approvedAt      DateTime?
+  expensedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([accountId])
+  @@index([memberId])
+  @@index([bookingRef])
+}
+
+// ─── WAVE 3: ITINERARY ──────────────────────────────────────────────────────
+model Itinerary {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  title       String
+  description String?
+  status      String   @default("draft") // draft, active, archived, shared
+  isPublic    Boolean  @default(false)
+  shareCode   String?   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  items       ItineraryItem[] @relation("itineraryItems")
+}
+
+model ItineraryItem {
+  id          String   @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary @relation("itineraryItems", fields: [itineraryId], references: [id])
+  type        String   // flight, hotel, car, activity, tour, custom
+  title       String
+  subtitle    String?
+  date        DateTime?
+  time        String?
+  duration    String?
+  location    String?
+  costUsd     Float    @default(0)
+  notes       String?
+  bookingRef  String?   // reference to actual booking
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([itineraryId])
+  @@index([type])
+}
+
+// ─── WAVE 3: GIFT CARDS ─────────────────────────────────────────────────────
+model GiftCard {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  userId      String   // purchaser
+  user        User     @relation(fields: [userId], references: [id])
+  amountUsd   Float
+  currency    String   @default("USD")
+  status      String   @default("active") // active, sent, redeemed, expired
+  recipientEmail String?  // if sent to someone
+  message     String?
+  sentAt      DateTime?
+  redeemedAt  DateTime?
+  redeemedBy  String?   // email of person who redeemed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([code])
+  @@index([user])
+  @@index([status])
+  @@index([recipientEmail])
+}
+
+// ─── WAVE 4: BAGGAGE ALLOWANCE ─────────────────────────────────────────────
+model BaggageAllowance {
+  id            String   @id @default(cuid())
+  flightNo      String
+  cabinClass    String   // Y, C, W, F, A
+  freeCheckedKg Int      @default(0)
+  freeCarryOn   Int      @default(1)
+  maxWeightKg   Float    @default(23)
+  maxPieces     Int      @default(1)
+  excessFeeUsd  Float    @default(50)
+  createdAt     DateTime @default(now())
+
+  @@index([flightNo, cabinClass])
+}
+
+// ─── WAVE 4: VISA REQUIREMENTS ─────────────────────────────────────────────
+model VisaRequirement {
+  id           String   @id @default(cuid())
+  nationality  String   @default("CD")
+  destination  String
+  visaRequired Boolean  @default(false)
+  visaType     String?   // tourist, business, transit
+  processingDays Int    @default(0)
+  costUsd      Float    @default(0)
+  url          String?
+  notes        String?
+  lastUpdated  DateTime @default(now())
+
+  @@index([nationality, destination])
+}
+
+// ─── WAVE 4: SEAT MAP ──────────────────────────────────────────────────────
+model SeatMap {
+  id           String   @id @default(cuid())
+  aircraftType String   // 737-800, ATR 72-600, etc.
+  layout       String   @default("{}")   // JSON: {rows, cols, rowClasses: {1: {class:'Y, extraLegroom:false}, ...}}
+  basePriceUsd Float   @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([aircraftType])
+  @@index([createdAt])
+}
+
+// ─── WAVE 4: UPSELL OFFERS ──────────────────────────────────────────────────
+model UpsellOffer {
+  id           String   @id @default(cuid())
+  name         String
+  description  String
+  icon         String   @default("shield")
+  category     String   @default("insurance") // insurance, transfer, upgrade, baggage, lounge
+  priceUsd     Float
+  minSpendUsd  Float    @default(0)
+  image        String   @default("/placeholder-upgrade.jpg")
+  status       String   @default("active") // active, inactive
+  targetProduct String?  // flight, hotel, car, cargo, package
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([targetProduct])
+}

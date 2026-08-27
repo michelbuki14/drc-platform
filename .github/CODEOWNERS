@@ -1,0 +1,20 @@
+# Global owners
+* @michelbuki
+
+# API routes
+/app/api/ @michelbuki
+
+# Pages
+/app/ @michelbuki
+
+# Components
+/components/ @michelbuki
+
+# Lib
+/lib/ @michelbuki
+
+# Scripts
+/scripts/ @michelbuki
+
+# CI/CD
+/.github/ @michelbuki

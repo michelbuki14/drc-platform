@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CongoConnect — Investor Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#0B2545; --navy2:#13315C; --gold:#D4AF37; --gold2:#E9C75A;
+    --bg:#F7F8FA; --ink:#0E1626; --muted:#5A6B82; --card:#FFFFFF;
+    --line:#E3E8F0; --accent:#1B7A6B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{font-family:'Montserrat',system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .deck{max-width:1100px;margin:0 auto;padding:32px 20px 80px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.5px;color:var(--navy)}
+  .brand .dot{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%, var(--gold), var(--navy));box-shadow:0 0 0 3px rgba(212,175,55,.25)}
+  .nav{display:flex;gap:6px;flex-wrap:wrap}
+  .nav button{border:1px solid var(--line);background:#fff;color:var(--muted);font-family:inherit;font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;cursor:pointer}
+  .nav button.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .slide{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:40px;min-height:480px;box-shadow:0 10px 40px rgba(11,37,69,.06);display:none}
+  .slide.active{display:block}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  h1{font-size:44px;line-height:1.05;font-weight:900;color:var(--navy);letter-spacing:-1px}
+  h2{font-size:30px;font-weight:800;color:var(--navy);margin-bottom:18px;letter-spacing:-.5px}
+  p.lead{font-size:18px;color:var(--muted);line-height:1.6;max-width:760px}
+  .grid{display:grid;gap:16px;margin-top:24px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid var(--line);border-radius:14px;padding:20px;background:#fff}
+  .card h3{font-size:16px;color:var(--navy);margin-bottom:6px;font-weight:800}
+  .card p{font-size:13.5px;color:var(--muted);line-height:1.5}
+  .card .ic{font-size:24px;margin-bottom:8px}
+  .big{font-size:40px;font-weight:900;color:var(--navy)}
+  .big.gold{color:var(--gold)}
+  .kpi-label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+  .pill{display:inline-block;background:rgba(212,175,55,.12);color:var(--navy);font-weight:700;font-size:12px;padding:5px 12px;border-radius:999px;margin:0 6px 6px 0}
+  .dark{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none}
+  .dark h1,.dark h2{color:#fff}
+  .dark p.lead{color:#C7D2E5}
+  .timeline{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px}
+  .step{flex:1;min-width:180px;border:1px solid var(--line);border-radius:14px;padding:18px}
+  .step .n{font-size:13px;font-weight:900;color:var(--gold)}
+  .step h4{color:var(--navy);font-size:15px;margin:6px 0 4px}
+  .step p{font-size:12.5px;color:var(--muted)}
+  .ask{font-size:22px;color:var(--navy);font-weight:800;line-height:1.4}
+  .foot{display:flex;justify-content:space-between;align-items:center;margin-top:24px;color:var(--muted);font-size:12px}
+  .arrow{font-size:12px}
+  .cta{display:inline-block;margin-top:18px;background:var(--gold);color:var(--navy);font-weight:800;padding:12px 22px;border-radius:999px;text-decoration:none}
+  table{width:100%;border-collapse:collapse;margin-top:18px;font-size:14px}
+  th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line)}
+  th{color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:1px}
+  td .tag{font-weight:700}
+  .ok{color:var(--accent)} .todo{color:var(--gold)}
+  @media(max-width:760px){.g2,.g3,.g4{grid-template-columns:1fr}h1{font-size:32px}h2{font-size:24px}.slide{padding:24px}}
+</style>
+</head>
+<body>
+<div class="deck">
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span> CongoConnect</div>
+    <div class="nav" id="nav"></div>
+  </div>
+
+  <!-- Slide 1: Cover -->
+  <section class="slide dark active" data-i="0">
+    <span class="eyebrow" style="color:var(--gold2)">Investor Deck · Series Seed</span>
+    <h1>The trusted digital ecosystem<br/>for DRC travel &amp; logistics</h1>
+    <p class="lead" style="margin-top:18px">One platform where travelers, freight forwarders, and airport operations transact through the same secure rails. We are building the operating system for movement in the Democratic Republic of the Congo.</p>
+    <div style="margin-top:26px"><span class="pill">72 pages live</span><span class="pill">106 API routes</span><span class="pill">Enterprise-secure</span><span class="pill">CI-green</span></div>
+    <div class="foot"><span>CongoConnect — The Trusted DRC Travel Ecosystem</span><span class="arrow">Slide 1 / 10</span></div>
+  </section>
+
+  <!-- Slide 2: Problem -->
+  <section class="slide" data-i="1">
+    <span class="eyebrow">The Problem</span>
+    <h2>A $2T continent's logistics stack is stuck in 1995</h2>
+    <p class="lead">The DRC is Sub-Saharan Africa's largest country by landmass and one of its fastest-growing populations. Yet travel and cargo still run on phone calls, intermediaries, and cash.</p>
+    <div class="grid g3">
+      <div class="card"><div class="ic">📞</div><h3>Fragmented</h3><p>Booking a flight, hotel, or moving cargo across Kinshasa–Lubumbashi means brokers, not apps.</p></div>
+      <div class="card"><div class="ic">💵</div><h3>Cash-only</h3><p>No single wallet, no loyalty, no programmatic reconciliation for supply partners.</p></div>
+      <div class="card"><div class="ic">🕳️</div><h3>No visibility</h3><p>Where is my shipment? Is my boarding pass valid? The trusted layer simply doesn't exist.</p></div>
+    </div>
+    <p class="lead" style="margin-top:20px"><b>The gap is trust, not demand.</b> Nobody has built the trusted layer. That is the company.</p>
+    <div class="foot"><span>Problem</span><span class="arrow">Slide 2 / 10</span></div>
+  </section>
+
+  <!-- Slide 3: Solution -->
+  <section class="slide" data-i="2">
+    <span class="eyebrow">The Solution</span>
+    <h2>One trusted platform for travel, cargo &amp; facilitation</h2>
+    <div class="grid g2">
+      <div class="card"><div class="ic">🛫</div><h3>Travel &amp; Cargo</h3><p>Flights, hotels, tours, vehicles, attractions, packages, insurance — full booking with QR-coded boarding passes. Cargo with real-time SSE tracking.</p></div>
+      <div class="card"><div class="ic">🏢</div><h3>Airport Hub (our moat)</h3><p>A 17-section airport-services module: assistance, baggage, car rentals, currency, lounges, transport, wifi — productized for the DRC.</p></div>
+      <div class="card"><div class="ic">💳</div><h3>Commercial engine</h3><p>Internal wallet (75/25 split), loyalty, referrals, group bookings, price alerts, partner API with scoped keys.</p></div>
+      <div class="card"><div class="ic">🛡️</div><h3>Enterprise-grade</h3><p>Signed sessions, bcrypt, CSRF, rate-limiting, full RBAC. Every protected route verified to reject unauthorized access.</p></div>
+    </div>
+    <div class="foot"><span>Solution</span><span class="arrow">Slide 3 / 10</span></div>
+  </section>
+
+  <!-- Slide 4: Market -->
+  <section class="slide" data-i="3">
+    <span class="eyebrow">Market Opportunity</span>
+    <h2>A large, underserved, fast-growing market</h2>
+    <div class="grid g4">
+      <div class="card"><div class="big">#1</div><div class="kpi-label">Largest country<br/>in Sub-Saharan Africa</div></div>
+      <div class="card"><div class="big gold">~100M+</div><div class="kpi-label">Population, among<br/>fastest-growing</div></div>
+      <div class="card"><div class="big">2</div><div class="kpi-label">Anchor corridors<br/>FIH ⇄ FBM, FIH ⇄ BRU</div></div>
+      <div class="card"><div class="big">$B</div><div class="kpi-label">Travel &amp; logistics<br/>TAM, largely offline</div></div>
+    </div>
+    <p class="lead" style="margin-top:22px">Mobile money is the default payment rail in the DRC (M-Pesa, Orange Money, Airtel). We built the payments layer to switch on the moment gateway keys are wired — no rebuild.</p>
+    <div class="foot"><span>Market</span><span class="arrow">Slide 4 / 10</span></div>
+  </section>
+
+  <!-- Slide 5: Product depth -->
+  <section class="slide" data-i="4">
+    <span class="eyebrow">Product — Built, Not a Mockup</span>
+    <h2>What's live today</h2>
+    <div class="grid g3">
+      <div class="card"><div class="big">72</div><div class="kpi-label">Pages rendering</div></div>
+      <div class="card"><div class="big">106</div><div class="kpi-label">API routes</div></div>
+      <div class="card"><div class="big">17</div><div class="kpi-label">Airport service modules</div></div>
+      <div class="card"><div class="ic">🎫</div><h3>QR boarding passes</h3><p>Issued &amp; signed at check-in, verifiable offline.</p></div>
+      <div class="card"><div class="ic">📡</div><h3>Real-time tracking</h3><p>Server-Sent-Events stream + live status broadcast.</p></div>
+      <div class="card"><div class="ic">🔌</div><h3>Partner API</h3><p>API-key auth, read/write scopes, usage metering.</p></div>
+    </div>
+    <div class="foot"><span>Product</span><span class="arrow">Slide 5 / 10</span></div>
+  </section>
+
+  <!-- Slide 6: Business model -->
+  <section class="slide" data-i="5">
+    <span class="eyebrow">Business Model</span>
+    <h2>Multiple, compounding revenue streams</h2>
+    <div class="grid g2">
+      <div class="card"><div class="ic">💰</div><h3>Take rate on bookings</h3><p>Wallet splits 75% to supply / 25% to CongoConnect on every transaction.</p></div>
+      <div class="card"><div class="ic">🤝</div><h3>Partner commission</h3><p>Agencies, hotels, tour operators earn via the API; we take a slice of each sale.</p></div>
+      <div class="card"><div class="ic">🛂</div><h3>Facilitation &amp; cargo</h3><p>Visas, airport assistance, customs clearance — premium, high-margin B2B.</p></div>
+      <div class="card"><div class="ic">🏢</div><h3>B2B SaaS</h3><p>Airlines, hotels, and agencies transact through us instead of building their own stack.</p></div>
+    </div>
+    <div class="foot"><span>Business Model</span><span class="arrow">Slide 6 / 10</span></div>
+  </section>
+
+  <!-- Slide 7: Traction / status -->
+  <section class="slide" data-i="6">
+    <span class="eyebrow">Status — Honest</span>
+    <h2>Platform complete; activation is a credentials step</h2>
+    <table>
+      <thead><tr><th>Layer</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Product &amp; platform</td><td class="tag ok">✅ Built · secure · CI-green</td></tr>
+        <tr><td>Booking + QR + real-time tracking</td><td class="tag ok">✅ Live &amp; verified</td></tr>
+        <tr><td>Payments (M-Pesa / Orange / card)</td><td class="tag todo">⚡ Integrated, env-gated — live on key wiring</td></tr>
+        <tr><td>Notifications (email / SMS / push)</td><td class="tag todo">⚡ Infra live — sends on key wiring</td></tr>
+        <tr><td>Multi-instance scale</td><td class="tag ok">✅ Redis cache/pub-sub seams in place</td></tr>
+      </tbody>
+    </table>
+    <p class="lead" style="margin-top:18px">We built the <b>rails</b> so activating real money and messaging is a configuration step, not a rebuild.</p>
+    <div class="foot"><span>Traction</span><span class="arrow">Slide 7 / 10</span></div>
+  </section>
+
+  <!-- Slide 8: Roadmap -->
+  <section class="slide" data-i="7">
+    <span class="eyebrow">90-Day Plan</span>
+    <h2>From platform to market</h2>
+    <div class="timeline">
+      <div class="step"><div class="n">0–30 DAYS</div><h4>Activate payments</h4><p>M-Pesa + Orange Money STK push live. The DRC is mobile-money first.</p></div>
+      <div class="step"><div class="n">30–60 DAYS</div><h4>Go to market</h4><p>Launch in Kinshasa + Lubumbashi. Airport facilitation is the wedge.</p></div>
+      <div class="step"><div class="n">60–90 DAYS</div><h4>Sign anchor partners</h4><p>3–5 hotels / agencies onto the API. Production hardening: observability, load test.</p></div>
+    </div>
+    <div class="foot"><span>Roadmap</span><span class="arrow">Slide 8 / 10</span></div>
+  </section>
+
+  <!-- Slide 9: Why now / moat -->
+  <section class="slide dark" data-i="8">
+    <span class="eyebrow" style="color:var(--gold2)">Why Now · Why Us</span>
+    <h2>The moat compounds</h2>
+    <div class="grid g3">
+      <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)"><div class="ic">🏢</div><h3 style="color:#fff">Airport hub</h3><p style="color:#C7D2E5">17 productized service modules — nobody else has built the airport experience for the DRC.</p></div>
+      <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)"><div class="ic">🔒</div><h3 style="color:#fff">Trust layer</h3><p style="color:#C7D2E5">Signed identity, wallet, real-time — the foundational rails others would have to rebuild.</p></div>
+      <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)"><div class="ic">🔌</div><h3 style="color:#fff">Partner network</h3><p style="color:#C7D2E5">Every API partner increases supply and lowers CAC — a two-sided flywheel.</p></div>
+    </div>
+    <div class="foot" style="color:#9FB0C9"><span>Moat</span><span class="arrow">Slide 9 / 10</span></div>
+  </section>
+
+  <!-- Slide 10: The ask -->
+  <section class="slide" data-i="9">
+    <span class="eyebrow">The Ask</span>
+    <h2>Let's switch it on</h2>
+    <p class="ask">We have a complete, secure, production-shaped platform with a defensible airport-services moat and a monetizable wallet/commission engine. The market is ready. The product is ready.</p>
+    <div style="margin-top:20px"><span class="pill">Activate payments</span><span class="pill">GTM Kinshasa + Lubumbashi</span><span class="pill">Anchor partners</span><span class="pill">Production hardening</span></div>
+    <a class="cta" href="#">Request the data room →</a>
+    <div class="foot"><span>CongoConnect — The Trusted DRC Travel Ecosystem</span><span class="arrow">Slide 10 / 10</span></div>
+  </section>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const nav=document.getElementById('nav');
+  slides.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.textContent=i+1; b.className=i===0?'active':'';
+    b.onclick=()=>go(i);
+    nav.appendChild(b);
+  });
+  function go(i){
+    slides.forEach(s=>s.classList.remove('active'));
+    slides[i].classList.add('active');
+    [...nav.children].forEach((b,j)=>b.classList.toggle('active',j===i));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.addEventListener('keydown',e=>{
+    const cur=slides.findIndex(s=>s.classList.contains('active'));
+    if(e.key==='ArrowRight')go(Math.min(slides.length-1,cur+1));
+    if(e.key==='ArrowLeft')go(Math.max(0,cur-1));
+  });
+</script>
+</body>
+</html>

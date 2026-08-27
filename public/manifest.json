@@ -1,0 +1,19 @@
+{
+  "name": "CongoConnect — The Trusted DRC Travel Ecosystem",
+  "short_name": "CongoConnect",
+  "description": "Book flights, arrange cargo, track shipments, reserve hotels, rent vehicles, and access passenger facilitation across the DRC.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1118",
+  "theme_color": "#0B2545",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
